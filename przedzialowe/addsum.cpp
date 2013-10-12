@@ -1,4 +1,4 @@
-// drzewo (+- przedzia³, suma przedzia³)
+// drzewo (+- przedzial, suma przedzial)
 
 #include<cstdio>
 #include<algorithm>
@@ -7,13 +7,14 @@ using namespace std;
 
 struct Vert{
 	int sum, magic;					// magic jest jakby obwodem dotychczasowych zawolan do drzewa i pozwala na
-	Vert(){}						// wykonywanie tych operacji, ktore sa potrzebne do liczenia wynikow
+	Vert(){}						// wykonywanie tylko tych operacji, ktore sa potrzebne do liczenia wynikow
 	Vert(int a, int b):sum(a),magic(b){}
 };
 
-int T[100];
 Vert Tree[200];
 int last;
+
+void makeTree(){};
 
 void print(){
 	printf("print:\n");
@@ -21,6 +22,11 @@ void print(){
 		printf("[%d %d] ", Tree[i].sum, Tree[i].magic);
 		if(__builtin_popcount(i+1)==1)printf("\n");
 	}
+}
+
+void setUpTree(int n){
+	last = int(pow(2,ceil(log2(n))));
+	makeTree();
 }
 
 void makeTree(int xp = 0, int xk = last-1, int x = 1){
@@ -65,12 +71,11 @@ int getSumRange(int p, int k, int xp = 0, int xk = last-1, int x = 1){
 
 int main(){
 	int n, q, w;
+	printf("rozmiar drzewa: ");
 	scanf("%d", &n);
-	last = int(pow(2,ceil(log2(n))));
-	makeTree();
-//	for(int i = 0; i < n; ++i)
-//		scanf("%d", T+i);
+	setUpTree(n);
 	print();
+	printf("liczba addow: ");
 	scanf("%d", &q);
 	for(int i = 0; i < q; ++i){
 		int a, b, c;
@@ -78,6 +83,7 @@ int main(){
 		addToRange(a, b, c);
 		print();
 	}
+	printf("liczba getow: ");
 	scanf("%d", &w);
 	for(int i = 0; i < w; ++i){
 		int a, b;
