@@ -1,5 +1,5 @@
-// nie bangla
-// drzewo (+- max, suma przedzial)
+// bangla
+// drzewo (+- max, przedzial)
 
 #include<cstdio>
 #include<algorithm>
@@ -7,9 +7,9 @@
 using namespace std;
 
 struct Vert{
-	int max, magic;					// magic jest jakby obwodem dotychczasowych zawolan do drzewa i pozwala na
-	Vert(){}						// wykonywanie tylko tych operacji, ktore sa potrzebne do liczenia wynikow
-	Vert(int a, int b):max(a),magic(b){}
+	int max, magic;					// magic jest wartoscia, ktora trzeba dodac do wszystkich podwezlow
+	Vert(){}						// max jest maxem z przedzialu, ktore nie zwraca uwagi na magic 
+	Vert(int a, int b):max(a),magic(b){} // w nadprzedzialach
 };
 
 Vert Tree[200];
@@ -40,40 +40,35 @@ void makeTree(int xp = 0, int xk = last-1, int x = 1){
 void addToRange(int p, int k, int val, int xp = 0, int xk = last-1, int x = 1){
 	if(k < p || !(xp <= p && xk >= k))
 		return;
+		
 	if(p == xp && k == xk)
 		Tree[x].magic += val;
 	else{
 		addToRange(p, min(k, (xp+xk)/2), val, xp, (xp+xk)/2, x*2);
 		addToRange(max(p, (xp+xk)/2+1), k, val, (xp+xk)/2+1, xk, x*2+1);
 	}
+	if(x < last)
+		Tree[x].max = max(Tree[x*2].max, Tree[x*2+1].max) + Tree[x].magic;
+	else
+		Tree[x].max = Tree[x].magic;
 }
 
-void getMaxRec(int p, int k, int& res, int xp = 0, int xk = last-1, int x = 1){
-	printf("gMRec: %d %d %d %d %d %d %d\n", p, k, res, xp, xk,x);		
+void getMaxRec(int p, int k, int& res, int magic = 0, int xp = 0, int xk = last-1, int x = 1){		
 	if(k < p || !(xp <= p && xk >= k))
 		return;
-	Tree[x].max += Tree[x].magic;
-	if(x < last){
-		Tree[2*x].magic += Tree[x].magic;
-		Tree[2*x+1].magic += Tree[x].magic;
-	}
-	Tree[x].magic = 0;
 	if(p == xp && k == xk)
-		res = max(res, Tree[x].max);
+		res = max(res, Tree[x].max + magic);
 	else{
-		getMaxRec(p, min(k, (xp+xk)/2), res, xp, (xp+xk)/2, 2*x);
-		getMaxRec(max(p, (xp+xk)/2+1), k, res, (xp+xk)/2+1, xk, 2*x+1);
+		getMaxRec(p, min(k, (xp+xk)/2), res, magic + Tree[x].magic, xp, (xp+xk)/2, 2*x);
+		getMaxRec(max(p, (xp+xk)/2+1), k, res, magic + Tree[x].magic, (xp+xk)/2+1, xk, 2*x+1);
 	}
 }
 
 int getMaxRange(int p, int k){
-	printf("gMRange: %d %d\n", p, k);
 	int res = 0;
 	getMaxRec(p, k, res);
 	return res;
 }
-
-
 
 int main(){
 	int n, q, w;
